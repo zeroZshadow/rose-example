@@ -1,0 +1,7 @@
+{
+  "address": ":0",
+  "masteraddress": "ws://localhost:8080/cluster",
+  "region": "EU",
+  "database": "user:password@tcp(localhost:3306)/game_db?charset=utf8&parseTime=true",
+  "name": "GameServerLive1"
+}
