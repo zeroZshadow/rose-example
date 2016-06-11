@@ -12,10 +12,10 @@ const shardCount = 128
 
 // ConcurrentRoomInfoMap A "thread" safe map of type string:RoomInfo.
 // To avoid lock bottlenecks this map is dived to several (shardCount) map shards.
-type ConcurrentRoomInfoMap []*ConcurrentRoomInfoMapShared
+type ConcurrentRoomInfoMap []*ConcurrentRoomInfoMapShard
 
-// ConcurrentRoomInfoMapShared Are buckets
-type ConcurrentRoomInfoMapShared struct {
+// ConcurrentRoomInfoMapShard Shard for ConcurrentRoomInfoMap
+type ConcurrentRoomInfoMapShard struct {
 	items        map[rose.RoomID]RoomInfo
 	sync.RWMutex // Read Write mutex, guards access to internal map.
 }
@@ -24,13 +24,13 @@ type ConcurrentRoomInfoMapShared struct {
 func NewRoomInfoMap() ConcurrentRoomInfoMap {
 	m := make(ConcurrentRoomInfoMap, shardCount)
 	for i := 0; i < shardCount; i++ {
-		m[i] = &ConcurrentRoomInfoMapShared{items: make(map[rose.RoomID]RoomInfo)}
+		m[i] = &ConcurrentRoomInfoMapShard{items: make(map[rose.RoomID]RoomInfo)}
 	}
 	return m
 }
 
 // GetShard Returns shard under given key
-func (m ConcurrentRoomInfoMap) GetShard(key rose.RoomID) *ConcurrentRoomInfoMapShared {
+func (m ConcurrentRoomInfoMap) GetShard(key rose.RoomID) *ConcurrentRoomInfoMapShard {
 	hasher := fnv.New32()
 	hasher.Write([]byte(string(key)))
 	return m[hasher.Sum32()%uint32(shardCount)]

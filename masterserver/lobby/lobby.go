@@ -77,17 +77,20 @@ func GetAllRooms(region string) []*pb.RoomInfo {
 	return rooms
 }
 
+// SetUser Add the user to the concurrent map
 func SetUser(user rose.User) {
 	// Add or update user in map
 	instance.users.Set(user.Base().ID, user)
 }
 
+// GetUser Grab the user for the given id from the concurrent map
 func GetUser(id rose.UserID) (rose.User, bool) {
 	// Remove user id from map
 	user, ok := instance.users.Get(id)
 	return user, ok
 }
 
+// RemoveUser Remove the user for the given id from the concurrent map
 func RemoveUser(id rose.UserID) {
 	// Remove user id from map
 	instance.users.Remove(id)
