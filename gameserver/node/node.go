@@ -99,7 +99,7 @@ func (node *Node) Stop() {
 }
 
 func (node *Node) register(region string, port uint64) {
-	// Make sure noone uses the node while we register
+	// Make sure no one uses the node while we register
 	node.Lock()
 	defer node.Unlock()
 

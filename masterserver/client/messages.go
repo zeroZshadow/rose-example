@@ -45,7 +45,7 @@ func handleCreateRoomRequest(user *User, messageType pb.MessageType, message []b
 	// Find best node to put the room on
 	bestNode := node.Cluster.GetBestForRegion(input.Region)
 
-	// Fail if we didnt find a node
+	// Fail if we didn't find a node
 	if bestNode == nil {
 		log.Errorf("No nodes found for region %s", input.Region)
 		sendRoomResponse(user, responseType, false, roomID, "", nil)
@@ -96,7 +96,7 @@ func handleJoinRoomRequest(user *User, messageType pb.MessageType, message []byt
 	// Pick a node based on the request parameters
 	info, ok := lobby.GetRoomInfo(roomID)
 	if !ok {
-		// Room wasnt found
+		// Room wasn't found
 		sendRoomResponse(user, responseType, false, roomID, "", nil)
 		return nil
 	}
@@ -104,7 +104,7 @@ func handleJoinRoomRequest(user *User, messageType pb.MessageType, message []byt
 	// Generate data for response
 	server, ok := info.Server.(*node.User)
 	if !ok {
-		// Server was empty wasnt found
+		// Server was empty wasn't found
 		log.Error("Server for requestion room is nil.")
 		sendRoomResponse(user, responseType, false, roomID, "", nil)
 		return nil

@@ -20,7 +20,7 @@ type User struct {
 	Room *rose.RoomFront
 }
 
-// HandlePacket sends the recieved packet data to HandleUserPacket
+// HandlePacket sends the received packet data to HandleUserPacket
 func (user *User) HandlePacket(msgType rose.MessageType, message []byte) {
 	messageType := pb.MessageType(msgType)
 
