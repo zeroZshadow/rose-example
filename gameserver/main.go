@@ -60,7 +60,7 @@ func main() {
 	room.SetupMessageHandlers()
 
 	// Create Server without origin checking and listen on /ws
-	server := rose.New()
+	server := rose.New(nil)
 	server.Listen("/ws", client.New)
 
 	// Setup listener

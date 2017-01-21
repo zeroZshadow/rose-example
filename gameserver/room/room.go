@@ -1,15 +1,15 @@
 package room
 
 import (
+	"time"
+
 	"github.com/op/go-logging"
 	"github.com/zeroZshadow/rose"
 	"github.com/zeroZshadow/rose-example/gameserver/client"
-	"github.com/zeroZshadow/rose-example/gameserver/lobby"
 	"github.com/zeroZshadow/rose-example/messages/pb"
-	"time"
 )
 
-type messageHandler func(*Room, *client.User, pb.MessageType, []byte) error // Waarom hebben we de pb.MessageType nodig? Volgens mij wordt deze nergens gebruikt.
+type messageHandler func(*Room, *client.User, pb.MessageType, []byte) error
 
 var (
 	// MessageMap Map of messageType handlers
@@ -62,14 +62,11 @@ func (room *Room) HandleMessage(user rose.User, msgType rose.MessageType, messag
 
 // Cleanup implements rose.Room.Cleanup
 func (room *Room) Cleanup() {
-	// Run base destroy
-	room.RoomBase.Cleanup()
-
-	// Remove ourselfs from the room list when done
-	lobby.Instance.RemoveRoom(room.RoomBase.ID)
-
 	// Inform master about the removed room
 	room.updateMasterInfo(true)
+
+	// Run base destroy
+	room.RoomBase.Cleanup()
 }
 
 // AddUser is overwriting RoomBase.AddUser
@@ -77,7 +74,7 @@ func (room *Room) AddUser(user rose.User) {
 	// Assert user to client
 	userClient, ok := user.(*client.User)
 	if !ok {
-		log.Critical("Non-client user joined room")
+		log.Critical("Non-client user tried to join room")
 		return
 	}
 
@@ -96,7 +93,7 @@ func (room *Room) RemoveUser(user rose.User) {
 	// Assert user to client
 	userClient, ok := user.(*client.User)
 	if !ok {
-		log.Critical("Impossible code path.")
+		log.Critical("Non-client user tried to leave room")
 		return
 	}
 

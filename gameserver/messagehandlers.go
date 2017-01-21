@@ -4,7 +4,6 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/zeroZshadow/rose"
 	"github.com/zeroZshadow/rose-example/gameserver/client"
-	"github.com/zeroZshadow/rose-example/gameserver/lobby"
 	"github.com/zeroZshadow/rose-example/gameserver/node"
 	"github.com/zeroZshadow/rose-example/gameserver/room"
 	"github.com/zeroZshadow/rose-example/messages/pb"
@@ -47,52 +46,45 @@ func handleRoomRequest(user *client.User, messageType pb.MessageType, message []
 	// Since the request is valid, we can use this to automatically login the userID
 	user.ID = userID
 
-	var room *rose.RoomFront
-
+	var result bool
 	switch messageType {
 	case pb.MessageType_CreateRoom:
-		room = createRoom(user, messageType, roomID)
+		result = createRoom(user, messageType, roomID)
 	case pb.MessageType_JoinRoom:
-		room = joinRoom(user, messageType, roomID)
+		result = joinRoom(user, messageType, roomID)
 	}
-
-	// Have the creator set the room if we have one
-	user.Room = room
 
 	// Response
-	// TODO could be a bit risky.
-	sendRoomResponse(user, messageType, room != nil, roomID)
-
-	// Adding the User also sends the room info to the master
-	if room != nil {
-		room.QueueAddUser(user)
-	}
+	sendRoomResponse(user, messageType, result, roomID)
 
 	return nil
 }
 
-func createRoom(user *client.User, messageType pb.MessageType, roomID rose.RoomID) *rose.RoomFront {
+func createRoom(user *client.User, messageType pb.MessageType, roomID rose.RoomID) bool {
 	// Create a new room
-	roomfront := lobby.Instance.NewRoom(roomID, room.New)
+	roomfront := rose.RoomLobby.NewRoom(roomID, room.New)
 	if roomfront == nil {
 		log.Errorf("Failed to create room %d", roomID)
-		return nil
+		return false
 	}
 
-	// Run the room first so any calls to the room wont block
-	roomfront.Start()
+	// Join the freshly created room
+	if err := rose.RoomLobby.JoinRoom(roomID, user); err != nil {
+		log.Errorf("Failed to join created room %d", roomID)
+		return false
+	}
 
-	return roomfront
+	return true
 }
 
-func joinRoom(user *client.User, messageType pb.MessageType, roomID rose.RoomID) *rose.RoomFront {
+func joinRoom(user *client.User, messageType pb.MessageType, roomID rose.RoomID) bool {
 	// Join existing room
-	roomfront := lobby.Instance.GetRoom(roomID)
-	if roomfront == nil {
-		log.Warningf("Failed to get room %d", roomID)
+	if err := rose.RoomLobby.JoinRoom(roomID, user); err != nil {
+		log.Errorf("Failed to join room %d", roomID)
+		return false
 	}
 
-	return roomfront
+	return true
 }
 
 func sendRoomResponse(user *client.User, messageType pb.MessageType, success bool, roomID rose.RoomID) {

@@ -16,7 +16,6 @@ var log = logging.MustGetLogger("global")
 type User struct {
 	// Framework things
 	*rose.UserBase
-
 	Room *rose.RoomFront
 }
 
@@ -46,7 +45,10 @@ func (user *User) HandlePacket(msgType rose.MessageType, message []byte) {
 // OnDisconnect removes the user from any connected rooms
 func (user *User) OnDisconnect(err error) {
 	if user.Room != nil {
-		user.Room.QueueRemoveUser(user)
+		if err := rose.RoomLobby.LeaveRoom(user.Room.ID, user); err != nil {
+			log.Warningf("Unable to exit room %v on disconnect", user.Room.ID)
+		}
+		user.Room = nil
 	}
 }
 

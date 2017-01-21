@@ -57,7 +57,7 @@ func main() {
 	node.SetupMessageHandlers()
 
 	// Create protoserver without origin checking and listen on /ws
-	server := rose.New()
+	server := rose.New(nil)
 	server.Listen("/client", client.New)
 	server.Listen("/cluster", node.New)
 
