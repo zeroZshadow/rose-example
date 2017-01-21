@@ -39,6 +39,7 @@ func handleCreateRoomRequest(user *User, messageType pb.MessageType, message []b
 
 	// Default packet values
 	roomID := rose.RoomID(snowflakeNode.Generate())
+	log.Info("Requesting room with id", roomID)
 
 	// Find best node to put the room on
 	bestNode := node.Cluster.GetBestForRegion(input.Region)

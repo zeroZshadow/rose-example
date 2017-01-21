@@ -68,21 +68,29 @@ func createRoom(user *client.User, messageType pb.MessageType, roomID rose.RoomI
 		return false
 	}
 
+	log.Info("Create new room", roomID)
+
 	// Join the freshly created room
-	if err := rose.RoomLobby.JoinRoom(roomID, user); err != nil {
+	room, err := rose.RoomLobby.JoinRoom(roomID, user)
+	if err != nil {
 		log.Errorf("Failed to join created room %d", roomID)
 		return false
 	}
+
+	user.Room = room
 
 	return true
 }
 
 func joinRoom(user *client.User, messageType pb.MessageType, roomID rose.RoomID) bool {
 	// Join existing room
-	if err := rose.RoomLobby.JoinRoom(roomID, user); err != nil {
+	room, err := rose.RoomLobby.JoinRoom(roomID, user)
+	if err != nil {
 		log.Errorf("Failed to join room %d", roomID)
 		return false
 	}
+
+	user.Room = room
 
 	return true
 }
